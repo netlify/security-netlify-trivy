@@ -1,0 +1,72 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Vulnerability Scan
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "scan"
+  scan:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+#      - name: Lint with flake8
+#        run: |
+#          # stop the build if there are Python syntax errors or undefined names
+#          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+#          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+#          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      #- name: Test with pytest
+        #run: |
+          #pytest
+
+      - name: Login to GCR
+        run: docker login -u oauth2accesstoken -p "${{ secrets.GC_API_CREDS}}" https://gcr.io
+
+      - name: Build image
+        run: docker build -t trivy-ci-test:latest .
+    
+      - name: Get Trivy
+        run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~
+
+      - name: Trivy Container Scan
+        run: /home/runner/trivy image -f json -o trivy_report.json trivy-ci-test:latest
+
+#      - name: Trivy Print Report for Testing
+#        run: echo $GITHUB_REPO && cat trivy_report.json
+#        env: 
+#          GITHUB_REPO: ${{ github.repository}}
+
+      - name: Trivy Parse Report
+        run: |
+          python trivy_json_report_parse.py --github=true --slack=false -b=h
+        env:
+#          CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
+          CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.CONTAINER_SCAN_GH_ACCESS_TOKEN }}
+          GITHUB_REPO: ${{ github.repository}}

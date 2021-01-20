@@ -1,0 +1,6 @@
+requests
+requests-unixsocket==0.2.0
+slackclient==2.8.1
+simplejson==3.16.0
+PyGithub==1.53
+GitPython
