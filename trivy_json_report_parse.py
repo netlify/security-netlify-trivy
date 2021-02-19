@@ -42,7 +42,7 @@ def parse_report_for_issues(slack_webhook, slack_alert, github_issue, slack_seve
                 print(message + "\n")
 
                 # Checking if sha256 is in suppressions file
-                file = open('suppressions', 'r')
+                file = open('suppressions-trivy', 'r')
                 file_lines = file.readlines()
                 count = 0
                 suppression_match = "false"
