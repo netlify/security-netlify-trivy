@@ -19,48 +19,50 @@ def parse_report_for_issues(slack_webhook, slack_alert, github_issue, slack_seve
         json_data = json.load(json_file)
         for target in json_data:
 #            print("Entire Target: {}\n".format(target))
-            for vulnerability in target['Vulnerabilities']:
-#                print("Vulnerability: {}\n".format(vulnerability))
-                issue_title = "container image vulnerability - " + json.dumps(vulnerability['PkgName']) + " - " + json.dumps(vulnerability['InstalledVersion'])
-                message = "**New Finding Alert**\n"
-                if 'Title' in vulnerability:
-                    message += "**Title**: " + json.dumps(vulnerability['Title']) + "\n"
-                message += "**Package Name**: " + json.dumps(vulnerability['PkgName']) + "\n"
-                message += "**Severity**: " + json.dumps(vulnerability['Severity']) + "\n"
-                message += "**Installed Version**: " + json.dumps(vulnerability['InstalledVersion']) + "\n"
-                message += "**Description**: " + json.dumps(vulnerability['Description']) + "\n"
-                message += "**Layer SHA256**: " + json.dumps(vulnerability['Layer']['DiffID']) + "\n"
-                message += "**Primary URL**: " + json.dumps(vulnerability['PrimaryURL']) + "\n"
-                if 'CVSS' in vulnerability:
-                    message += "**CVSS Score**: " + json.dumps(vulnerability['CVSS']) + "\n"
-                message += "**References**: " + json.dumps(vulnerability['References']) + "\n"
-                if 'PublishedDate' in vulnerability:
-                    message += "**Published Date**: " + json.dumps(vulnerability['PublishedDate']) + "\n"
-                if 'LastModifiedDate' in vulnerability:
-                    message += "**Last Modified Date**: " + json.dumps(vulnerability['LastModifiedDate']) + "\n"
-                    fixable = "true"
-                print(message + "\n")
+            if target['Vulnerabilities'] is not None:
+                for vulnerability in target['Vulnerabilities']:
+                    if vulnerability is not None:
+                        print("Vulnerability: {}\n".format(vulnerability))
+                        issue_title = "container image vulnerability - " + json.dumps(vulnerability['PkgName']) + " - " + json.dumps(vulnerability['InstalledVersion'])
+                        message = "**New Finding Alert**\n"
+                        if 'Title' in vulnerability:
+                            message += "**Title**: " + json.dumps(vulnerability['Title']) + "\n"
+                        message += "**Package Name**: " + json.dumps(vulnerability['PkgName']) + "\n"
+                        message += "**Severity**: " + json.dumps(vulnerability['Severity']) + "\n"
+                        message += "**Installed Version**: " + json.dumps(vulnerability['InstalledVersion']) + "\n"
+                        message += "**Description**: " + json.dumps(vulnerability['Description']) + "\n"
+                        message += "**Layer SHA256**: " + json.dumps(vulnerability['Layer']['DiffID']) + "\n"
+                        message += "**Primary URL**: " + json.dumps(vulnerability['PrimaryURL']) + "\n"
+                        if 'CVSS' in vulnerability:
+                            message += "**CVSS Score**: " + json.dumps(vulnerability['CVSS']) + "\n"
+                        message += "**References**: " + json.dumps(vulnerability['References']) + "\n"
+                        if 'PublishedDate' in vulnerability:
+                            message += "**Published Date**: " + json.dumps(vulnerability['PublishedDate']) + "\n"
+                        if 'LastModifiedDate' in vulnerability:
+                            message += "**Last Modified Date**: " + json.dumps(vulnerability['LastModifiedDate']) + "\n"
+                            fixable = "true"
+                        print(message + "\n")
 
-                # Checking if sha256 is in suppressions file
-                file = open('.github/workflows/trivy-files/suppressions-trivy', 'r')
-                file_lines = file.readlines()
-                count = 0
-                suppression_match = "false"
-                for line in file_lines:
-                    #print("Line{}: {}".format(count, line.strip().split(' ', 1)[0]))
-                    if json.dumps(vulnerability['Layer']['DiffID']).strip('\"') == line.strip().split(' ', 1)[0]:
-                        suppression_match = "true"
+                        # Checking if sha256 is in suppressions file
+                        file = open('.github/workflows/trivy-files/suppressions-trivy', 'r')
+                        file_lines = file.readlines()
+                        count = 0
+                        suppression_match = "false"
+                        for line in file_lines:
+                            #print("Line{}: {}".format(count, line.strip().split(' ', 1)[0]))
+                            if json.dumps(vulnerability['Layer']['DiffID']).strip('\"') == line.strip().split(' ', 1)[0]:
+                                suppression_match = "true"
 
-                #If not suppressed, and there is a fix available, send to slack and or create gh issue
-                if suppression_match == "false" and fixable == "true":
-                    if slack_alert == "true":
-                        for sev_level in slack_severity:
-                            if json.dumps(vulnerability['Severity']) == sev_level: 
-                                send_slack_alert(slack_webhook, message)
-                    if github_issue == "true":
-                        for sev_level in github_severity:
-                            if json.dumps(vulnerability['Severity']) == sev_level: 
-                                dedup_and_create_gh_issue(message, issue_title, json.dumps(vulnerability['Severity']).strip('\"'))
+                        #If not suppressed, and there is a fix available, send to slack and or create gh issue
+                        if suppression_match == "false" and fixable == "true":
+                            if slack_alert == "true":
+                                for sev_level in slack_severity:
+                                    if json.dumps(vulnerability['Severity']) == sev_level: 
+                                        send_slack_alert(slack_webhook, message)
+                            if github_issue == "true":
+                                for sev_level in github_severity:
+                                    if json.dumps(vulnerability['Severity']) == sev_level: 
+                                        dedup_and_create_gh_issue(message, issue_title, json.dumps(vulnerability['Severity']).strip('\"'))
     #except:
         #print(" [ERROR] Cannot open file: " + filename)
 
@@ -92,8 +94,7 @@ def get_repo_from_env() -> str:
 def matches_issue_in_repo(repo_path, g, issue_title):
     issues = get_issues_from_repo(repo_path, g)
     for issue in issues:
-        print(f"Issue : {issue} \n")
-        print(f"Issue : {issue.title} \n")
+#        print(f"Issue : {issue.title} \n")
         if issue.title == issue_title:
             print("Issue " + issue.title + " already exists\n")
             issue_matched = "true"
