@@ -10,8 +10,8 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-COPY entrypoint.sh entrypoint.sh
-RUN chmod +x entrypoint.sh
-ENTRYPOINT ["entrypoint.sh"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 #ENTRYPOINT ["sh", "-c", "python3 trivy_json_report_parse.py --github=false --slack=false"]
 
