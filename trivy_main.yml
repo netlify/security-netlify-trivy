@@ -24,39 +24,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-#      - name: Lint with flake8
-#        run: |
-#          # stop the build if there are Python syntax errors or undefined names
-#          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-#          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-#          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-      #- name: Test with pytest
-        #run: |
-          #pytest
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
-
-      - name: Login to GCR
-#        run: docker login -u oauth2accesstoken -p "${{ secrets.GC_API_CREDS}}" https://gcr.io
-        run: docker login -u oauth2accesstoken -p "$(gcloud auth print-access-token)" https://gcr.io
-
       - name: Build image
         run: docker build -t trivy-ci-test:latest .
     
@@ -72,10 +39,14 @@ jobs:
 #          GITHUB_REPO: ${{ github.repository}}
 
       - name: Trivy Parse Report
-        run: |
-          # specify --github=true/false and/or --slack=true/false
-          # and specify severity of alerts to each like --minSeverityGithub=h and --minSeveritySlack=c
-          python trivy_json_report_parse.py --github=true --slack=false --minSeverityGithub=h
+        uses: actions/security-netify-trivy-parse
+        with:
+          trivy_report_file_path: 'trivy_report.json'
+          suppression_file_path: 'suppressions-trivy'
+          create_github_issue: 'false'
+          github_min_severity: 'high'
+          create_slack_notification: 'false'
+          slack_min_severity: 'critical'
         env:
 #          CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
           CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

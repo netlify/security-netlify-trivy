@@ -29,8 +29,8 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.suppression_file_path }}
     - ${{ inputs.trivy_report_file_path }}
+    - ${{ inputs.suppression_file_path }}
     - ${{ inputs.create_github_issue }}
     - ${{ inputs.github_min_severity }}
     - ${{ inputs.create_slack_notification }}
