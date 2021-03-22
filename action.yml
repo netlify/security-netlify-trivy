@@ -35,3 +35,10 @@ runs:
     - ${{ inputs.github_min_severity }}
     - ${{ inputs.create_slack_notification }}
     - ${{ inputs.slack_min_severity }}
+  env:
+    - CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
+    - CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - GITHUB_REPO: ${{ github.repository}}
+branding:
+  icon: 'life-buoy'
+  color 'white'
