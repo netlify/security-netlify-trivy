@@ -1,5 +1,64 @@
-# Trivy Container Scan Action
-[Trivy is a container scanning tool from aquasecurity](https://github.com/aquasecurity/trivy). This action is written in python and wraps trivy to provide extra functionality, such as, suppression handling, alerting to slack, opening github issues, and specifying severity levels of notifications. This tool will automatically pick up `Dockerfile` in the root level of a repo. 
+# Security Netlify Trivy Parse
+[Trivy is a container scanning tool from aquasecurity](https://github.com/aquasecurity/trivy). This action is written in python and wraps trivy to provide extra functionality, such as, suppression handling, alerting to slack, opening github issues with labels specifying risk level, by specifying which severity levels of notifications. This tool is meant to work automatically with `action/trivy` to pick up `Dockerfile` in the root level of a repo. 
+
+## Inputs
+
+### `trivy_report_file_path`
+
+**Required** - location of trivy report that will be parsed
+
+### `suppression_file_path` 
+
+path/name of suppression list file
+
+### `create_github_issue`
+
+boolean if user wishes to create github issues
+
+### `github_min_severity`
+
+issues will be created for all discovered vulnerabilities with >= this severity
+You can specify the severity of issues created by specifying Critical, High, Medium or Low using `-k/--minSeverityGithub=Low` argument in the python execution in the workflow file. It is important to understand that this will create issues for all findings greater than and including the chosen severity level.  The default is `Low`
+
+### `create_slack_notification` 
+
+boolean if user wishes to create slack alert
+
+### `slack_min_severity`
+
+alerts will be sent to slack for all discovered vulnerabilities with >= severity
+You can specify the slack alert severity by specifying Critical, High, Medium or Low using `-k/--minSeveritySlack=Low` argument in the python execution in the workflow file. It is important to understand that you will recieve alerts for all findings greater than and including the chosen severity level.  The default is `Low`.
+
+
+### ENV Vars
+Must use ENV names as specified:
+```
+  env:
+    - CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
+    - CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - GITHUB_REPO: ${{ github.repository}}`
+```
+
+## Example Usage 
+
+```
+uses: actions/name
+with: 
+  trivy_report_file_path: 'trivy_report.json'
+  suppression_file_path: 'suppressions-trivy'
+  create_github_issue: 'true'
+  github_min_severity: 'high'
+  create_slack_notification: 'true'
+  slack_min_severity: 'critical'
+env:
+  CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
+  CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_REPO: ${{ github.repository}}
+```
+
+
+
+## Older Verbiage
 
 ### Building from GCR images
 

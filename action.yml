@@ -1,4 +1,4 @@
-name: 'security-netlify-trivy'
+name: 'security-netlify-trivy-parse'
 description: 'python wrapped trivy report parser adding features like suppression handling'
 inputs:
   trivy_report_file_path:
