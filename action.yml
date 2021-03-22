@@ -10,7 +10,7 @@ inputs:
     required: false
     default: 'suppressions-trivy'
   create_github_issue:
-    description: 'boolean if user wishes to create slack alert'
+    description: 'boolean if user wishes to create github issues'
     required: false
     default: 'false'
   github_min_severity:

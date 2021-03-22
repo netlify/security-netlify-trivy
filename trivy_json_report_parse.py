@@ -13,8 +13,9 @@ from slack import WebClient
 from slack.errors import SlackApiError
 from github import Github
 
-def parse_report_for_issues(slack_webhook, slack_alert, github_issue, slack_severity, github_severity):
-    filename = 'trivy_report.json' 
+def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack_alert, github_issue, slack_severity, github_severity):
+    filename = report_path
+#    filename = 'trivy_report.json' 
     with open(filename, 'r+') as json_file:
         json_data = json.load(json_file)
         for target in json_data:
@@ -44,7 +45,7 @@ def parse_report_for_issues(slack_webhook, slack_alert, github_issue, slack_seve
                         print(message + "\n")
 
                         # Checking if sha256 is in suppressions file
-                        file = open('suppressions-trivy', 'r')
+                        file = open(suppressions_path, 'r')
                         file_lines = file.readlines()
                         count = 0
                         suppression_match = "false"
@@ -143,9 +144,11 @@ def main():
 
     slack_webhook = "Null"
     slack_alert = "false"
-    github_issue = "false" 
+    github_issue = "false"
 
     parser = argparse.ArgumentParser(description="Trivy Container Scanner")
+    parser.add_argument('-r',"--report-path",required=True,default="trivy_report.json",help="Location of Required Filepath of Trivy Report File to be Parsed")
+    parser.add_argument('-p',"--suppressions-path",required=False,default="suppressions-trivy",help="Location of Optional Suppressions List File")
     parser.add_argument('-g',"--github",required=False,default=False,help="Create a Github Issue for Each Vulnerability")
     parser.add_argument('-s',"--slack",required=False,default=False,help="Send a Slack Alert for Each Vulnerability")
     parser.add_argument('-k',"--minSeveritySlack",required=False,default="low",help="Minimum Severity for Alerting Slack eg. critical,high,medium,low")
@@ -175,13 +178,12 @@ def main():
     if slack_alert == "true":
         slack_webhook = get_slack_webhook_from_env()
 
-
     message = "Starting Trivy Report Parse\n"
     print(message)
     if slack_alert == "true":
         send_slack_alert(slack_webhook, message)
 
-    parse_report_for_issues(slack_webhook, slack_alert, github_issue, slack_severity, github_severity)
+    parse_report_for_issues(args.report_path, args.suppressions_path, slack_webhook, slack_alert, github_issue, slack_severity, github_severity)
 
     message = "Trivy Report Parse Completed!\n"
     print(message)
