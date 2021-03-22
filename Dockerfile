@@ -13,5 +13,7 @@ COPY . .
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
+
+COPY trivy_json_report_parse.py trivy_json_report_parse.py
 #ENTRYPOINT ["sh", "-c", "python3 trivy_json_report_parse.py --github=false --slack=false"]
 
