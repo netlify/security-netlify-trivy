@@ -16,7 +16,7 @@ inputs:
   github_min_severity:
     description: 'issues will be created for all discovered vulnerabilities with >= this severity'
     required: false
-    default: ''
+    default: 'low'
   create_slack_notification:
     description: 'boolean if user wishes to create slack alert'
     required: false
@@ -24,7 +24,7 @@ inputs:
   slack_min_severity:
     description: 'alerts will be sent to slack for all discovered vulnerabilities with >= severity'
     required: false
-    default: ''
+    default: 'low'
 runs:
   using: 'docker'
   image: 'Dockerfile'
