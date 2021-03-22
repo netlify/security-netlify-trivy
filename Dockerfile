@@ -8,11 +8,11 @@ RUN apt-get update && \
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY trivy_json_report_parse.py trivy_json_report_parse.py
+COPY trivy_json_report_parse.py /trivy_json_report_parse.py
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-#ENTRYPOINT ["sh", "-c", "python3 trivy_json_report_parse.py --github=false --slack=false"]
+#ENTRYPOINT ["sh", "-c", "python3 /trivy_json_report_parse.py --github=false --slack=false"]
 
