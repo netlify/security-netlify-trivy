@@ -86,4 +86,3 @@ Sometimes a particular vulnerability does not need to be addressed. This can be 
 
 ### Docker build arguments
 If your Container Image requires build arguments, you can add those to the GH Action workflow as necessary, using GH secrets where possible
-Example: `run: docker build --build-arg BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ secrets.SIDEKIQ_ENT_ACCESS_KEY }} -t trivy-ci-test:latest .`
