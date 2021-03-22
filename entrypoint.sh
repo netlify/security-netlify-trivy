@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PARAMS_STRING=""
+PARAMS_STRING=" "
 
 # ARG- Must Supply Trivy Report Path 
 if [ ! -z "$1" ]
