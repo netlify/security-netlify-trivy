@@ -1,5 +1,5 @@
 # Security Netlify Trivy Parse
-[Trivy is a container scanning tool from aquasecurity](https://github.com/aquasecurity/trivy). This action is written in python and wraps trivy to provide extra functionality, such as, suppression handling, alerting to slack, opening github issues with labels specifying risk level, by specifying which severity levels of notifications. This tool is meant to work automatically with `action/trivy` to pick up `Dockerfile` in the root level of a repo. 
+[Trivy is a container scanning tool from aquasecurity](https://github.com/aquasecurity/trivy). This action is written in python and pareses the trivy report to provide extra functionality, such as, suppression handling, alerting to slack, opening github issues with labels specifying risk level, by specifying which severity levels of notifications. This tool is meant to work automatically with `action/trivy` to pick up `Dockerfile` in the root level of a repo. 
 
 ## Inputs
 
