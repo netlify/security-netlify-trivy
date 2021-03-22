@@ -25,6 +25,18 @@ inputs:
     description: 'alerts will be sent to slack for all discovered vulnerabilities with >= severity'
     required: false
     default: 'low'
+  container_scan_slack_webhook:
+    description: 'slack webhook, if desired'
+    required: false
+    default: ''
+  container_scan_gh_access_token:
+    description: 'GH access token used to create issues'
+    required: false
+    default: ''
+  github_repo_name:
+    description: 'github repo name'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -36,9 +48,9 @@ runs:
     - ${{ inputs.create_slack_notification }}
     - ${{ inputs.slack_min_severity }}
   env:
-    CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
-    CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    GITHUB_REPO: ${{ github.repository}}
+    CONTAINER_SCAN_SLACK_WEBHOOK: ${{ inputs.container_scan_slack_webhook }}
+    CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ inputs.container_scan_gh_access_token }}
+    GITHUB_REPO: ${{ inputs.github_repo_name }}
 branding:
   icon: 'life-buoy'
   color: 'white'
