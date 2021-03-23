@@ -39,15 +39,15 @@ jobs:
 #          GITHUB_REPO: ${{ github.repository}}
 
       - name: Trivy Parse Report
-        uses: actions/security-netify-trivy-parse
+        uses: netlify/security-netlify-trivy@v0.3
         with:
           trivy_report_file_path: 'trivy_report.json'
-          suppression_file_path: 'suppressions-trivy'
-          create_github_issue: 'false'
+          suppression_file_path: 'suppressions'
+          create_github_issue: 'true'
           github_min_severity: 'high'
           create_slack_notification: 'false'
           slack_min_severity: 'critical'
-        env:
-#          CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
-          CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO: ${{ github.repository}}
+          container_scan_slack_webhook: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
+          container_scan_gh_access_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo_name: ${{ github.repository}}
+
