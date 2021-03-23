@@ -29,43 +29,23 @@ boolean if user wishes to create slack alert
 alerts will be sent to slack for all discovered vulnerabilities with >= severity
 You can specify the slack alert severity by specifying Critical, High, Medium or Low using `-k/--minSeveritySlack=Low` argument in the python execution in the workflow file. It is important to understand that you will recieve alerts for all findings greater than and including the chosen severity level.  The default is `Low`.
 
-
-### ENV Vars
-Must use ENV names as specified:
-```
-  env:
-    - CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
-    - CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - GITHUB_REPO: ${{ github.repository}}`
-```
-
 ## Example Usage 
 
 ```
-uses: actions/name
-with: 
-  trivy_report_file_path: 'trivy_report.json'
-  suppression_file_path: 'suppressions-trivy'
-  create_github_issue: 'true'
-  github_min_severity: 'high'
-  create_slack_notification: 'true'
-  slack_min_severity: 'critical'
-env:
-  CONTAINER_SCAN_SLACK_WEBHOOK: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
-  CONTAINER_SCAN_GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GITHUB_REPO: ${{ github.repository}}
+      - name: Trivy Parse Report
+        uses: netlify/security-netlify-trivy@v0.3
+        with:
+          trivy_report_file_path: 'trivy_report.json'
+          suppression_file_path: 'suppressions'
+          create_github_issue: 'true'
+          github_min_severity: 'high'
+          create_slack_notification: 'false'
+          slack_min_severity: 'critical'
+          container_scan_slack_webhook: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
+          container_scan_gh_access_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo_name: ${{ github.repository}}
 ```
 
-
-
-## Older Verbiage
-
-### Building from GCR images
-
-This tool is capable of pulling images from GCR automatically by pulling org level secrets.
-Bur you can use any GCP Access Token with enough privelege, simply uncomment the ENVVAR called `GC_API_CREDS` in the workflow file, and populate it by using github secrets. 
-
-Pro-tip: One easy way to obtain a 60 min lifetime token for testing is by using `gcloud auth print-access-token` while logged in to GCP. 
 
 ### Alerting to Slack
 This tool can alert to slack. By specifying `-s/--slack=true` as an argument in `.github/workflows/trivy-main.yml` python trivy execution, it will send an alert to slack for each finding. The default is `false`.
