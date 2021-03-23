@@ -34,7 +34,7 @@ You can specify the slack alert severity by specifying Critical, High, Medium or
 
 container_scan_slack_webhook: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
 
-#### `container_scan_gh_access_toke`         
+#### `container_scan_gh_access_token`         
 
 container_scan_gh_access_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,9 +46,17 @@ github_repo_name: ${{ github.repository}}
 If your Container Image requires build arguments, you can add those to the GH Action workflow as necessary, using GH secrets where necessary.
 
 ## Example Usage 
-First you must call the trivy action or get trivy directly and use it:
+First you must call the trivy action or get trivy directly and use it to produce a json report:
 
 ```
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'trivy-ci-test:latest'
+          ignore-unfixed: false
+          format: 'json'
+          output: 'trivy_report.json'
+          skip-dirs: '/usr/local/bundle/ruby'
 ```
 
 or
@@ -58,7 +66,7 @@ or
         run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~
 
       - name: Trivy Container Scan
-        run: /home/runner/trivy image -f json -o trivy_report.json --skip-dirs "usr/local/bundle/ruby, /usr/local/bundle/ruby" trivy-ci-test:latest
+        run: /home/runner/trivy image -f json -o trivy_report.json --skip-dirs "/usr/local/bundle/ruby" trivy-ci-test:latest
 ```
 
 ```
