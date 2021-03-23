@@ -23,7 +23,7 @@ def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack
             if target['Vulnerabilities'] is not None:
                 for vulnerability in target['Vulnerabilities']:
                     if vulnerability is not None:
-                        print("Vulnerability: {}\n".format(vulnerability))
+#                        print("Vulnerability: {}\n".format(vulnerability))
                         issue_title = "container image vulnerability - " + json.dumps(vulnerability['PkgName']) + " - " + json.dumps(vulnerability['InstalledVersion'])
                         message = "**New Finding Alert**\n"
                         if 'Title' in vulnerability:
