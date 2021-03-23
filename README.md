@@ -42,6 +42,8 @@ container_scan_gh_access_token: ${{ secrets.GITHUB_TOKEN }}
 
 github_repo_name: ${{ github.repository}}
 
+### Docker build arguments
+If your Container Image requires build arguments, you can add those to the GH Action workflow as necessary, using GH secrets where necessary.
 
 ## Example Usage 
 First you must call the trivy action or get trivy directly and use it:
@@ -59,9 +61,6 @@ or
         run: /home/runner/trivy image -f json -o trivy_report.json --skip-dirs "usr/local/bundle/ruby, /usr/local/bundle/ruby" trivy-ci-test:latest
 ```
 
-
-
-
 ```
       - name: Trivy Parse Report
         uses: netlify/security-netlify-trivy@v0.3
@@ -77,22 +76,19 @@ or
           github_repo_name: ${{ github.repository}}
 ```
 
+## Manually running the python script on your trivy report
 
 ### Alerting to Slack
 This tool can alert to slack. By specifying `-s/--slack=true` as an argument in `.github/workflows/trivy-main.yml` python trivy execution, it will send an alert to slack for each finding. The default is `false`.
 
 You can specify the slack alert severity by specifying Critical, High, Medium or Low using `-k/--minSeveritySlack=Low` argument in the python execution in the workflow file. It is important to understand that you will recieve alerts for all findings greater than and including the chosen severity level.  The default is `Low`.
 
-You must also call an input `CONTAINER_SCAN_SLACK_WEBHOOK` in the workflow file, and populate it by using github secrets.
+You must also have envvar `CONTAINER_SCAN_SLACK_WEBHOOK`
 
 ### Creating Github Issues
 This tool can create issues in github. By specifying `-g/--github=true` as an argument in `.github/workflows/trivy-main.yml` python trivy execution, it will create a github issue for each finding. The default is `false`.
 
 You can specify the severity of issues created by specifying Critical, High, Medium or Low using `-k/--minSeverityGithub=Low` argument in the python execution in the workflow file. It is important to understand that this will create issues for all findings greater than and including the chosen severity level.  The default is `Low`
 
-You must also call a inut `CONTAINER_SCAN_GH_ACCESS_TOKEN` in the workflow file, and populate it by using github secrets.
+You must also have envvar `CONTAINER_SCAN_GH_ACCESS_TOKEN` 
 
-### Suppressions
-
-### Docker build arguments
-If your Container Image requires build arguments, you can add those to the GH Action workflow as necessary, using GH secrets where necessary.
