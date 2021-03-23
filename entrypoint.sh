@@ -41,4 +41,4 @@ fi
 echo "$PARAMS_STRING"
  
 #python3 trivy_json_report_parse.py --report-path="trivy_report.json" 
-python3 trivy_json_report_parse.py $PARAMS_STRING 
+python3 /trivy_json_report_parse.py $PARAMS_STRING 
