@@ -42,6 +42,7 @@ def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack
                         if 'LastModifiedDate' in vulnerability:
                             message += "**Last Modified Date**: " + json.dumps(vulnerability['LastModifiedDate']) + "\n"
                             fixable = "true"
+                        message += "\n To Forever Suppress This Finding From Alerting, see https://github.com/netlify/security-netlify-trivy#suppression_file_path \n"
                         print(message + "\n")
 
                         # Checking if sha256 is in suppressions file
