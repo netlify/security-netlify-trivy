@@ -14,24 +14,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  # This workflow contains a single job called "scan"
+  # This workflow contains two jobs called "define" and "scan"
+  
+  # define matrix of Dockerfiles to be scanned
+  define:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.finding-files.outputs.matrix }}
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+    - name: Finding Dockerfiles and store to output
+      id: finding-files
+      run: |
+        TEMPLIST="$(ls | grep Dockerfile |awk '{ printf "\"%s\"\n", $0 }' | paste -s -d, - | sed 's/,/, /g' | sed 's/^/[ /;s/$/ ]/')"
+        echo $TEMPLIST
+        echo "::set-output name=matrix::$TEMPLIST"
+
   scan:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    # matrix definition
+    strategy:
+      matrix:
+        filelist: ${{fromJson(needs.define.outputs.matrix)}}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build image
-        run: docker build -t trivy-ci-test:latest .
+      - name: Processing found Dockerfiles from output, building images
+        id: build-image
+        run: |
+          TEMP_REPORT_NAME="$(echo "${{ matrix.filelist }}" | tr "[A-Z]" "[a-z]" | sed 's/\./-/g')"
+          echo $TEMP_REPORT_NAME
+          echo "::set-output name=TEMPREPORTNAME::$TEMP_REPORT_NAME"
+          docker build -t image-$TEMP_REPORT_NAME:latest -f ${{ matrix.filelist }} .
     
       - name: Get Trivy
         run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~
 
-      - name: Trivy Container Scan
-        run: /home/runner/trivy image -f json -o trivy_report.json trivy-ci-test:latest
+      - name: Trivy Container Scan on Dockerfiles
+        run: |
+          /home/runner/trivy image -f json -o trivy_report_${{ steps.build-image.outputs.TEMPREPORTNAME }}.json image-${{ steps.build-image.outputs.TEMPREPORTNAME }}:latest
 
 #      - name: Trivy Print Report for Testing
 #        run: echo $GITHUB_REPO && cat trivy_report.json
@@ -41,7 +68,7 @@ jobs:
       - name: Trivy Parse Report
         uses: netlify/security-netlify-trivy@v0.3
         with:
-          trivy_report_file_path: 'trivy_report.json'
+          trivy_report_file_path: 'trivy_report_${{ steps.build-image.outputs.TEMPREPORTNAME }}.json'
           suppression_file_path: 'suppressions'
           create_github_issue: 'true'
           github_min_severity: 'high'

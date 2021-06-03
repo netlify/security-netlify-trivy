@@ -1,5 +1,5 @@
 # Security Netlify Trivy Parse
-[Trivy is a container scanning tool from aquasecurity](https://github.com/aquasecurity/trivy). This action is written in python and parses the trivy report to provide extra functionality, such as, suppression handling, alerting to slack, opening github issues with labels specifying risk level, by specifying which severity levels of notifications. This tool is meant to work automatically after using `aquasecurity/trivy-action@master`, which will pick up `Dockerfile` in the root level of a repo. 
+[Trivy is a container scanning tool from aquasecurity](https://github.com/aquasecurity/trivy). This action is written in python and parses the trivy report to provide extra functionality, such as, suppression handling, alerting to slack, opening github issues with labels specifying risk level, by specifying which severity levels of notifications. This tool is meant to work automatically after using `aquasecurity/trivy-action@master`, which will pick up all files that start with `Dockerfile*` in the root level of a repo. 
 
 ## Inputs
 
@@ -45,44 +45,8 @@ github_repo_name: ${{ github.repository}}
 ### Docker build arguments
 If your Container Image requires build arguments, you can add those to the GH Action workflow as necessary, using GH secrets where necessary.
 
-## Example Usage 
-First you must call the trivy action or get trivy directly and use it to produce a json report:
-
-```
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'trivy-ci-test:latest'
-          ignore-unfixed: false
-          format: 'json'
-          output: 'trivy_report.json'
-          skip-dirs: '/usr/local/bundle/ruby'
-```
-
-or
-
-```
-      - name: Get Trivy
-        run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~
-
-      - name: Trivy Container Scan
-        run: /home/runner/trivy image -f json -o trivy_report.json --skip-dirs "/usr/local/bundle/ruby" trivy-ci-test:latest
-```
-
-```
-      - name: Trivy Parse Report
-        uses: netlify/security-netlify-trivy@v0.3
-        with:
-          trivy_report_file_path: 'trivy_report.json'
-          suppression_file_path: 'suppressions'
-          create_github_issue: 'true'
-          github_min_severity: 'high'
-          create_slack_notification: 'false'
-          slack_min_severity: 'critical'
-          container_scan_slack_webhook: ${{ secrets.CONTAINER_SCAN_SLACK_WEBHOOK }}
-          container_scan_gh_access_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repo_name: ${{ github.repository}}
-```
+## Example Usage
+See [Example Workflow](https://github.com/netlify/security-netlify-trivy/blob/main/workflow.yml)
 
 ## Manually running the python script on your trivy report
 
