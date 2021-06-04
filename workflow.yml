@@ -43,6 +43,8 @@ jobs:
 
     # matrix definition
     strategy:
+      # This ensures scan jobs continue, even if one fails
+      fail-fast: false
       matrix:
         filelist: ${{fromJson(needs.define.outputs.matrix)}}
 
