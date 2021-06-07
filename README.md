@@ -43,7 +43,25 @@ container_scan_gh_access_token: ${{ secrets.GITHUB_TOKEN }}
 github_repo_name: ${{ github.repository}}
 
 ### Docker build arguments
-If your Container Image requires build arguments, you can add those to the GH Action workflow as necessary, using GH secrets where necessary.
+If your Container Image requires build arguments, you can add those to the build step of GH Action workflow as necessary, using env vars if you need.
+Right now this is pretty cloogy using case statements but here is an example=
+
+```
+      - name: Processing found Dockerfiles from output, building images
+        id: build-image
+        run: |
+          TEMP_REPORT_NAME="$(echo "${{ matrix.filelist }}" | tr "[A-Z]" "[a-z]" | sed 's/\./-/g')"
+          echo $TEMP_REPORT_NAME
+          echo "::set-output name=TEMPREPORTNAME::$TEMP_REPORT_NAME"
+          if [[ ${{ matrix.filelist }} == Dockerfile.ubuntu18-ruby ]]; then
+              docker build --build-arg=RUBY_VERSION=$RUBY_VERSION -t image-$TEMP_REPORT_NAME:latest -f ${{ matrix.filelist }} .
+          else
+              docker build -t image-$TEMP_REPORT_NAME:latest -f ${{ matrix.filelist }} .
+          fi
+        env:
+          RUBY_VERSION: '3.0.0'
+```
+
 
 ## Example Usage
 See [Example Workflow](https://github.com/netlify/security-netlify-trivy/blob/main/workflow.yml)
