@@ -82,3 +82,13 @@ You can specify the severity of issues created by specifying Critical, High, Med
 
 You must also have envvar `CONTAINER_SCAN_GH_ACCESS_TOKEN` 
 
+### Ignoring Specific Dockerfiles
+You can add the following line after the TEMPLIST variable is defined as shown in the example. Do this for each Dockerfile you wish to have completely ignored.
+
+```
+        TEMPLIST="$(ls | grep Dockerfile |awk '{ printf "\"%s\"\n", $0 }' | paste -s -d, - | sed 's/,/, /g' | sed 's/^/[ /;s/$/ ]/')"
+        echo $TEMPLIST
+        # Copy/Modify the following line to ignore specific Dockerfiles
+        TEMPLIST=( "${TEMPLIST[@]/"\"Dockerfile.node15-nfcli\", "}"  )
+        echo "::set-output name=matrix::$TEMPLIST"
+```
