@@ -15,6 +15,8 @@ from github import Github
 
 def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack_alert, github_issue, slack_severity, github_severity):
     filename = report_path
+    filename_wo_ext = os.path.splitext(filename)[0]
+    filename_stripped = filename_wo_ext.replace('trivy_report_', '')
 #    filename = 'trivy_report.json' 
     with open(filename, 'r+') as json_file:
         json_data = json.load(json_file)
@@ -26,7 +28,7 @@ def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack
                         if vulnerability is not None:
                             fixable = "false"
                             #print("Vulnerability: {}\n".format(vulnerability))
-                            issue_title = "container image vulnerability - " + json.dumps(vulnerability['PkgName']) + " - " + json.dumps(vulnerability['InstalledVersion'])
+                            issue_title = "container image vulnerability - " + filename_stripped + " - " + json.dumps(vulnerability['PkgName'])
                             message = "**New Finding Alert**\n"
                             if 'Title' in vulnerability:
                                 message += "**Title**: " + json.dumps(vulnerability['Title']) + "\n"
@@ -50,7 +52,6 @@ def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack
                             # Checking if sha256 is in suppressions file
                             file = open(suppressions_path, 'r')
                             file_lines = file.readlines()
-                            count = 0
                             suppression_match = "false"
                             for line in file_lines:
                                 #print("Line{}: {}".format(count, line.strip().split(' ', 1)[0]))
