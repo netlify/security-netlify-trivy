@@ -32,7 +32,8 @@ jobs:
     - name: Finding Dockerfiles and store to output
       id: finding-files
       run: |
-        TEMPLIST="$(ls | grep Dockerfile |awk '{ printf "\"%s\"\n", $0 }' | paste -s -d, - | sed 's/,/, /g' | sed 's/^/[ /;s/$/ ]/')"
+        IGNORELIST=("Dockerfile.ignore-me")
+        TEMPLIST="$(awk '{ printf "\"%s\"\n", $0 }' <(comm -23 <(ls -1 *Dockerfile*) <(printf '%s\n' "${IGNORELIST[@]}" )) | paste -s -d, - | sed 's/,/, /g' | sed 's/^/[ /;s/$/ ]/')"
         echo $TEMPLIST
         echo "::set-output name=matrix::$TEMPLIST"
 
