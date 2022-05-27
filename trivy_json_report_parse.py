@@ -18,7 +18,7 @@ def parse_report_for_issues(report_path, suppressions_path, slack_webhook, slack
     filename_wo_ext = os.path.splitext(filename)[0]
     filename_stripped = filename_wo_ext.replace('trivy_report_', '')
 #    filename = 'trivy_report.json' 
-    with open(filename, 'r+') as json_file:
+    with open(filename, 'rb') as json_file:
         json_data = json.load(json_file)
         for target in json_data:
             #print("Entire Target: {}\n".format(target))
